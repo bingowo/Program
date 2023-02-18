@@ -27,7 +27,7 @@ MAX_STEP = 50
 BATCH_SIZE = 32
 WORKERS = 0
 LR = 0.002
-EPOCH = 1000
+EPOCH = 10
 #input dimension
 INPUT = NUM_OF_QUESTIONS * 2 + (knowledge_n if use_knowledge else 0)
 # embedding dimension
@@ -38,3 +38,6 @@ HIDDEN = 200
 LAYERS = 1
 # output dimension
 OUTPUT = NUM_OF_QUESTIONS
+
+Data = 0
+knowledge_name = ['STL', 'big int', 'binary search', 'bitmasks', 'brute force', 'combinatorics', 'contruction', 'dfs', 'digit dp', 'dp', 'dsu', 'expression parser', 'gcd', 'graph', 'greedy', 'hash', 'implementation', 'implemention', 'math', 'matrix', 'parser', 'parsing', 'positional notation', 'prefix sum', 'recursion', 'sorings', 'sortings', 'stack', 'string', 'strings', 'two pointer']

@@ -1,1 +1,6 @@
 *.pyc
+*.jpg
+*.zip
+*.c
+*.pth
+/EOJDataset/contest513/Source_code

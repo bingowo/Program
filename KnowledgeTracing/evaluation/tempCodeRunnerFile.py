@@ -1,2 +1,0 @@
-mmaryWriter()
-# logging.basicCon

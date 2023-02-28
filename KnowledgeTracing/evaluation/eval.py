@@ -57,7 +57,7 @@ def train_epoch(model, trainLoader, optimizer, loss_func):
     for batch in tqdm.tqdm(trainLoader, desc='Training:    ', mininterval=2):
         batch = batch.to(C.device)
         pred = model(batch)
-        if C.use_knowledge: batch = batch[:,:,:2*C.NUM_OF_QUESTIONS]
+        batch = batch[:,:,:2*C.NUM_OF_QUESTIONS]
 
         loss = loss_func(pred, batch)
         optimizer.zero_grad()
@@ -77,7 +77,7 @@ def test_epoch(model, testLoader):
         batch = batch.to(C.device)
         pred = model(batch)
 
-        if C.use_knowledge: batch = batch[:,:,:2*C.NUM_OF_QUESTIONS]
+        batch = batch[:,:,:2*C.NUM_OF_QUESTIONS]
         # pred = pred * torch.tensor(0.01).to(C.device)
 
         for student in range(pred.shape[0]):

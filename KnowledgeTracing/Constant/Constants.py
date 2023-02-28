@@ -14,12 +14,13 @@ numbers = {
     'contest513' : 141,  # use 1 - 136
     'static2011' : 1224, 
 }
-
+# 50990 code paths
 student_n = 195
 exer_n = 141 
 knowledge_n = 31
 use_knowledge = False
 
+MAX_CODE_LEN = 100
 DATASET = datasets['contest513']
 NUM_OF_QUESTIONS = numbers['contest513']
 # the max step of RNN model
@@ -27,7 +28,7 @@ MAX_STEP = 50
 BATCH_SIZE = 32
 WORKERS = 0
 LR = 0.002
-EPOCH = 10
+EPOCH = 100
 #input dimension
 INPUT = NUM_OF_QUESTIONS * 2 + (knowledge_n if use_knowledge else 0)
 # embedding dimension

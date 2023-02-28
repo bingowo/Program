@@ -9,8 +9,8 @@ from data.DKTDataSet import DKTDataSet
 
 def getLoaderSet(data_path):
     handle = DataReader(data_path ,C.MAX_STEP, C.NUM_OF_QUESTIONS)
-    ques, ans = handle.getData()
-    ddata = DKTDataSet(ques, ans)
+    ques, ans, paths = handle.getData()
+    ddata = DKTDataSet(ques, ans, paths)
     C.Data = ddata
     Loader = Data.DataLoader(ddata, batch_size=C.BATCH_SIZE, shuffle=True, num_workers=C.WORKERS)
     return Loader

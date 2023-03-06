@@ -3,4 +3,5 @@
 *.zip
 *.c
 *.pth
-/EOJDataset/contest513/Source_code
+*.tsv
+*.t7

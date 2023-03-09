@@ -13,16 +13,19 @@ class DKTDataSet(Dataset):
         self.code_ids = code_ids
 
 
-        self.Q = np.zeros((C.exer_n + 1, C.knowledge_n))
+        self.Q = np.zeros((C.exer_n + 1, 4))
         prob2concept = pd.read_csv(C.Dpath + '/contest513/problem_label.csv')
         for i in range(len(prob2concept)):
             problem_id, concepts = prob2concept.loc[i,'problem_id'], prob2concept.loc[i,'concept']
             num = 1
+            cnt = 0
             for j in range(C.knowledge_n):
                 if (num&concepts):
-                    self.Q[problem_id][j] = 1
+                    # self.Q[problem_id][j] = 1
+                    self.Q[problem_id][cnt] = j + 1
+                    cnt += 1
                 num = num * 2
-        self.Q = torch.FloatTensor(self.Q)
+        self.Q = torch.tensor(self.Q)
 
         # print(self.Q,self.stu)
         # print(len(self.ques),len(self.ans),len(self.stu))
@@ -30,7 +33,7 @@ class DKTDataSet(Dataset):
         codes = torch.load('EOJDataset/CodeBERT/code_embeddings.t7')
 
         self.in_ques        = torch.zeros([len(self.ques), C.MAX_STEP])
-        self.in_concepts    = torch.zeros([len(self.ques), C.MAX_STEP, C.knowledge_n])
+        self.in_concepts    = torch.zeros([len(self.ques), C.MAX_STEP, 4])
         self.in_score         = torch.zeros([len(self.ques), C.MAX_STEP])
         self.in_codes       = torch.zeros([len(self.ques), C.MAX_STEP, C.code_length])
         for index in range(len(self.ques)):
@@ -62,13 +65,14 @@ class DKTDataSet(Dataset):
 
     def preload(self, index, code2):
         ques    = torch.from_numpy(self.ques[index])
-        concept = torch.zeros([C.MAX_STEP, C.knowledge_n])
+        concept = torch.zeros([C.MAX_STEP, 4])
         ans     = torch.tensor([1 if self.ans[index][i] == 100 else 0 for i in range(C.MAX_STEP)],dtype=torch.long)
         codes   = torch.zeros([C.MAX_STEP, C.code_length])
         for i in range(C.MAX_STEP):
             # print(self.nums[index,i],self.vecs.get(self.nums[index,i],torch.zeros((1,768))).size())
             concept[i,:] = self.Q[self.ques[index][i],:]
             codes[i,:] = code2.get(str(self.code_ids[index, i]), torch.zeros((1, C.code_length)))
+        
         # c = torch.FloatTensor([self.vecs.get(self.nums[index,i],torch.zeros((1,768))) for i in range(C.MAX_STEP)])
         return ques.long(), concept, ans, codes
     

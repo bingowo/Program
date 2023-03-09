@@ -42,17 +42,26 @@ def performance(ground_truth, prediction, epoch):
     
     global ep
     global tt
-    if cnt/len(ground_truth) > tt:
+    if cnt/len(ground_truth) > tt and epoch != 0:
         ep = epoch
         tt = cnt/len(ground_truth)
-    print('acc:' + str(tt) + ' epoch in:' + str(ep)  + '\n')
+    if epoch != 0: print('acc:' + str(tt) + ' epoch in:' + str(ep)  + '\n')
+
+    # if epoch == C.EPOCH-1:#or (epoch > 20 and (cnt/len(ground_truth) > 0.85 or cnt/len(ground_truth) < 0.70)):
+    #     with open('is_finish.txt', 'w') as x:
+    #         x.write('1')
+    #     with open('result.txt', 'a') as x:
+    #         x.write('acc:' + str(tt) + ' epoch in:' + str(ep)  + ' cc:' + str(cnt/len(ground_truth))  + '\n')
+    #     exit(0)
 
 
 def train_epoch(model, trainLoader, optimizer, loss_func):
     loss_sum = 0
+    temp_pred = torch.Tensor([]).to(C.device)
+    temp_gold = torch.Tensor([]).to(C.device)
     for ques, concepts, ans, codes, score in tqdm.tqdm(trainLoader, desc='Training:    ', mininterval=2):
         ques = ques.to(C.device)                # [batch_size, MAX_STEP]
-        concepts = concepts.to(C.device)        # [batch_size, MAX_STEP, knowledge_n]
+        concepts = concepts.to(C.device)        # [batch_size, MAX_STEP, 4]
         ans = ans.to(C.device)                  # [batch_size, MAX_STEP]
         codes = codes.to(C.device)              # [batch_size, MAX_STEP, code_length]
         score = score.to(C.device)              # [batch_size, MAX_STEP]
@@ -66,14 +75,18 @@ def train_epoch(model, trainLoader, optimizer, loss_func):
         # pred = pred.reshape(C.BATCH_SIZE,-1)
         # print(pred.size(),'======',score.size())
         # print(pred,ans)
-        # a = torch.tensor([]).to(C.device)
-        # b = torch.tensor([]).to(C.device)
-        # t = torch.count_nonzero(ques, dim=1).to(C.device)
-        # for student in range(pred.shape[0]):
-        #     a = torch.cat([a,pred[student,:int(t[student])]])
-        #     b = torch.cat([b,score[student,:int(t[student])]])
-        # loss = loss_func(a.view(-1), b.view(-1))
-        loss = loss_func(pred.view(-1), score.view(-1))
+        a = torch.tensor([]).to(C.device)
+        b = torch.tensor([]).to(C.device)
+        t = torch.count_nonzero(ques, dim=1).to(C.device)
+        for student in range(pred.shape[0]):
+            a = torch.cat([a,pred[student,1:int(t[student])]])
+            b = torch.cat([b,score[student,1:int(t[student])]])
+            temp_pred = torch.cat([temp_pred, pred[student,1:int(t[student])]])
+            temp_gold = torch.cat([temp_gold, score[student,1:int(t[student])]])
+        loss = loss_func(a.view(-1), b.view(-1))
+        # loss = loss_func(pred.view(-1), score.view(-1))
+
+        
 
         # loss = torch.Tensor([0.0]).to(C.device)
         # for ind in range(ans.size()[0]):
@@ -86,6 +99,7 @@ def train_epoch(model, trainLoader, optimizer, loss_func):
         # print(loss)
         optimizer.step()
     print('loss:',loss_sum)
+    performance(temp_gold.cpu(), temp_pred.cpu(), 0)
     return model, optimizer
 
 def save_snapshot(model, filename):
@@ -116,7 +130,7 @@ def test_epoch(model, testLoader):
             # temp_gold = torch.cat([temp_gold, score[student,x:x+1]])
             for x in range(pred.shape[1]):
                 if ques[student,x] != 0 and x != 0:#and (x == 49 or ques[student,x+1] == 0):
-                    temp_pred = torch.cat([temp_pred, pred[student,x:x+1,0]])
+                    temp_pred = torch.cat([temp_pred, pred[student,x:x+1]])
                     temp_gold = torch.cat([temp_gold, score[student,x:x+1]])
 
         pred_epoch = torch.cat([pred_epoch, temp_pred])
@@ -126,11 +140,13 @@ def test_epoch(model, testLoader):
 
 
 def train(trainLoaders, model, optimizer, lossFunc):
+    model.train()
     for i in range(len(trainLoaders)):
         model, optimizer = train_epoch(model, trainLoaders[i], optimizer, lossFunc)
     return model, optimizer
 
 def test(testLoaders, model, epoch):
+    model.eval()
     ground_truth = torch.Tensor([])
     prediction = torch.Tensor([])
     for i in range(len(testLoaders)):
@@ -138,5 +154,6 @@ def test(testLoaders, model, epoch):
         prediction = torch.cat([prediction, pred_epoch])
         ground_truth = torch.cat([ground_truth, gold_epoch])
     performance(ground_truth, prediction, epoch)
+    print("================================================")
 
     

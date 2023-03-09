@@ -15,27 +15,47 @@ from evaluation.test import knowledge_proficiency
 print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 
 
+# with open('is_finish.txt', 'w') as x:
+#     x.write('0')
+# with open('parameter.txt', 'r') as x:
+#     a,b,c = x.readline().split()
+#     a = float(a)
+#     b = float(b)
+#     c = float(c)
+# with open('result.txt', 'a') as x:
+#     x.write('lr:' + str(a) + ' dropout:' + str(b)  + ' weight_decay:' + str(c)  +  '    ')
+
+a = 0.01
+b = 0.1
+c = 0.0002
+
 model = saint(dim_model=128,
-            num_en=4,
-            num_de=4,
+            num_en=1,
+            num_de=1,
             heads_en=8,
             heads_de=8,
             total_ex=C.exer_n,
-            total_cat=C.knowledge_n,
+            total_cat=C.knowledge_n+1,
             total_in=2,
-            seq_len=C.MAX_STEP
+            seq_len=C.MAX_STEP,
+            dropout=b
             ).to(C.device)
 # model = TModel(128).to(C.device)
 # model = DKT(C.INPUT, C.HIDDEN, C.LAYERS, C.OUTPUT).to(C.device)
 # model = NeuralCDM(C.student_n, C.exer_n, C.knowledge_n).to(C.device)
 # net = NeuralCDM(C.student_n, C.exer_n, C.knowledge_n)
 # loss_func = nn.CrossEntropyLoss().to(C.device)
-loss_func = nn.MSELoss().to(C.device)
+loss_func = nn.BCELoss().to(C.device)
+# loss_func = nn.MSELoss().to(C.device)
 # loss_func = eval.lossFunc().to(C.device)
 #loss_func = nn.NLLLoss().to(C.device)
 
-optimizer = optim.Adam(model.parameters(), lr=C.LR)
-# optimizer = optim.Adagrad(model.parameters(),lr=C.LR)
+optimizer = optim.Adam(model.parameters(), lr=a, weight_decay= c)#, weight_decay=1e-4)
+# optimizer = optim.Adagrad(model.parameters(),lr=0.001)
+# optimizer = optim.SGD(model.parameters(), lr=C.LR, weight_decay=1e-4, momentum=0.98)
+
+total = sum(p.numel() for p in model.parameters())
+print("Total params: %.2fM" % (total/1e6))
 
 trainLoaders, testLoaders = getLoader(C.DATASET)
 

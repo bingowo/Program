@@ -9,7 +9,7 @@ from data.DKTDataSet import DKTDataSet
 
 def getLoaderSet(data_path,shuffle=True):
     handle = DataReader(data_path ,C.MAX_STEP, C.NUM_OF_QUESTIONS)
-    ques, ans, code_ids = handle.getData()
+    ques, ans, code_ids = handle.getData(shuffle)
     ddata = DKTDataSet(ques, ans, code_ids)
     Loader = Data.DataLoader(ddata, batch_size=C.BATCH_SIZE, shuffle=shuffle, num_workers=C.WORKERS)
     return Loader

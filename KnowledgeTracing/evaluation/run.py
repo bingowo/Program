@@ -25,13 +25,13 @@ print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 # with open('result.txt', 'a') as x:
 #     x.write('lr:' + str(a) + ' dropout:' + str(b)  + ' weight_decay:' + str(c)  +  '    ')
 
-a = 0.01
-b = 0.1
-c = 0.0002
+a = 0.0001
+b = 0.5
+c = 0.1
 
-model = saint(dim_model=128,
-            num_en=1,
-            num_de=1,
+model = saint(dim_model=256,
+            num_en=6,
+            num_de=6,
             heads_en=8,
             heads_de=8,
             total_ex=C.exer_n,
@@ -50,7 +50,7 @@ loss_func = nn.BCELoss().to(C.device)
 # loss_func = eval.lossFunc().to(C.device)
 #loss_func = nn.NLLLoss().to(C.device)
 
-optimizer = optim.Adam(model.parameters(), lr=a, weight_decay= c)#, weight_decay=1e-4)
+optimizer = optim.AdamW(model.parameters(), lr=a, weight_decay=c)#, weight_decay=1e-4)
 # optimizer = optim.Adagrad(model.parameters(),lr=0.001)
 # optimizer = optim.SGD(model.parameters(), lr=C.LR, weight_decay=1e-4, momentum=0.98)
 

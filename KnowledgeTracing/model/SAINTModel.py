@@ -50,13 +50,15 @@ class Encoder_block(nn.Module):
             #in_pos = self.embd_pos( in_pos )
             #combining the embedings
             out = in_ex #+ in_cat #+ in_pos                      # (b,n,d)
+
+            in_pos = get_pos(self.seq_len)
+            in_pos = self.embd_pos( in_pos )
+            out = out + in_pos                                      # Applying positional embedding
+            out = self.dropout(out)
         else:
             out = in_ex
         
-        in_pos = get_pos(self.seq_len)
-        in_pos = self.embd_pos( in_pos )
-        out = out + in_pos                                      # Applying positional embedding
-        out = self.dropout(out)
+
 
         out = out.permute(1,0,2)                                # (n,b,d)  # print('pre multi', out.shape )
         
@@ -66,6 +68,7 @@ class Encoder_block(nn.Module):
         skip_out = out 
         out, attn_wt = self.multi_en( out , out , out ,
                                 attn_mask=get_mask(seq_len=n))  # attention mask upper triangular
+        out = self.dropout(out)
         out = out + skip_out                                    # skip connection
 
         #feed forward
@@ -101,27 +104,29 @@ class Decoder_block(nn.Module):
 
         self.dropout = nn.Dropout(p=dropout)
 
-        self.ff_code    = nn.Linear(C.code_length, 2*dim_model)
+        self.ff_codes    = nn.Linear(768, 768)
+        self.ff_code    = nn.Linear(768, dim_model)
         self.ff_tmp    = nn.Linear(dim_model*2, dim_model)
 
     def forward(self, in_in, in_code,en_out,first_block=True):
 
          ## todo create a positional encoding ( two options numeric, sine)
         if first_block:
-            # in_in = self.embd_in(in_in)
+            in_in = self.embd_in(in_in)
             #combining the embedings
-            in_in = self.ff_code(in_code)                 #if using code
-            # in_in = torch.cat((tmp,in_in),2)
-            out = self.ff_tmp(F.relu(in_in))
+            in_code = self.ff_codes(F.relu(in_code))
+            tmp = self.ff_code(in_code)                 #if using code
+            in_in = torch.cat((tmp,in_in),2)
+            out = self.ff_tmp(in_in)
 
-            # out = in_in + tmp
+            in_pos = get_pos(self.seq_len)
+            in_pos = self.embd_pos( in_pos )
+            out = out + in_pos                                          # Applying positional embedding
+            out = self.dropout(out)
         else:
             out = in_in
 
-        in_pos = get_pos(self.seq_len)
-        in_pos = self.embd_pos( in_pos )
-        out = out + in_pos                                          # Applying positional embedding
-        out = self.dropout(out)
+
 
         out = out.permute(1,0,2)                                    # (n,b,d)# print('pre multi', out.shape )
         n,_,_ = out.shape
@@ -131,6 +136,7 @@ class Decoder_block(nn.Module):
         skip_out = out
         out, attn_wt = self.multi_de1( out , out , out, 
                                      attn_mask=get_mask(seq_len=n)) # attention mask upper triangular
+        out = self.dropout(out)
         out = skip_out + out                                        # skip connection
 
         #Multihead attention M2                                     ## todo verify if E to passed as q,k,v
@@ -139,6 +145,7 @@ class Decoder_block(nn.Module):
         skip_out = out
         out, attn_wt = self.multi_de2( out , en_out , en_out,
                                     attn_mask=get_mask(seq_len=n))  # attention mask upper triangular
+        out = self.dropout(out)
         out = out + skip_out
 
         #feed forward

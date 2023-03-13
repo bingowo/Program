@@ -1,10 +1,12 @@
 import torch
 from transformers import RobertaTokenizer, RobertaConfig, RobertaModel
+from unixcoder import UniXcoder
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('device: ',device)
-tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-c")
-model = RobertaModel.from_pretrained("neulab/codebert-c")
+# tokenizer = RobertaTokenizer.from_pretrained("neulab/codebert-c")
+# model = RobertaModel.from_pretrained("neulab/codebert-c")
+model = UniXcoder("microsoft/unixcoder-base-nine")
 model.to(device)
 print("model loaded.")
 
@@ -54,21 +56,27 @@ def file2vec(filename):
     # print(txt)
 
     #====================================================================
+    # print(txt)
+    tokens_ids = model.tokenize([txt],max_length=512,mode="<encoder-only>", padding=True)
+    source_ids = torch.tensor(tokens_ids).to(device)
+    # print(source_ids.shape,source_ids)
+    # tokens_embeddings,func_embedding = model(source_ids)
+    # print(tokens_embeddings.shape, func_embedding.shape)
 
-    code_tokens=tokenizer.tokenize(txt)
-    tokens = [tokenizer.cls_token] + code_tokens + [tokenizer.sep_token]
-    tokens=tokenizer.convert_tokens_to_ids(tokens)
-    # print(min(tokens),max(tokens),len(tokens))
+    # code_tokens=tokenizer.tokenize(txt)
+    # tokens = [tokenizer.cls_token] + code_tokens + [tokenizer.sep_token]
+    # tokens=tokenizer.convert_tokens_to_ids(tokens)
+    # # print(min(tokens),max(tokens),len(tokens))
 
-    x = tokens[:min(len(tokens),512)]
-    # print(code_tokens)
-    # print(tokens)
-    x = torch.tensor(x[:]).to(device)
+    # x = tokens[:min(len(tokens),512)]
+    # # print(code_tokens)
+    # # print(tokens)
+    # x = torch.tensor(x[:]).to(device)
         
-    embedding=model(x[None,:])[0]
-    embedding=embedding[0,0,:]
+    # embedding=model(x[None,:])[0]
+    # embedding=embedding[0,0,:]
     
-    return number, embedding.cpu()
+    return number, source_ids.cpu()
 
 
 

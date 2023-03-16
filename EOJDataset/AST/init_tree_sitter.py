@@ -1,14 +1,14 @@
 from tree_sitter import Language, Parser
 
-# Language.build_library(
-#   # Store the library in the `build` directory
-#   'build/my-languages.so',
+Language.build_library(
+  # Store the library in the `build` directory
+  'EOJDataset/AST/build/my-languages.so',
 
-#   # Include one or more languages
-#   [
-#     'tree-sitter-c',
-#   ]
-# )
+  # Include one or more languages
+  [
+    'EOJDataset/AST/tree-sitter-c'
+  ]
+)
 C_LANGUAGE = Language('EOJDataset/AST/build/my-languages.so', 'c')
 
 parser = Parser()

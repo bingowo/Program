@@ -11,7 +11,7 @@ import pandas as pd
 
 class DKTDataSet(Dataset):
     def __init__(self, data_path, use_data_augmentation=False):
-        handle = DataReader(data_path ,C.MAX_STEP, C.NUM_OF_QUESTIONS)
+        handle = DataReader(data_path, C.MAX_STEP)
         ques, ans, code_ids = handle.getData(use_data_augmentation)
 
         self.ques = ques

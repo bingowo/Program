@@ -26,7 +26,7 @@ DATASET = datasets['contest513']
 NUM_OF_QUESTIONS = numbers['contest513']
 # the max step of RNN model
 MAX_STEP = 50
-BATCH_SIZE = 32
+BATCH_SIZE = 50
 WORKERS = 0
 LR = 0.00005
 EPOCH = 10000

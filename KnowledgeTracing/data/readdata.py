@@ -4,12 +4,11 @@ import tqdm
 import random
 
 class DataReader():
-    def __init__(self, path, maxstep, numofques):
+    def __init__(self, path, maxstep):
         self.path = path
         self.maxstep = maxstep
-        self.numofques = numofques
 
-    def getData(self, use_data_augmentation):
+    def getData(self, use_data_augmentation=False):
         trainqus = np.array([])
         trainans = np.array([])
         traincode_id = np.array([])

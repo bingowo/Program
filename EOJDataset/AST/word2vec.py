@@ -11,10 +11,8 @@ def word2vec(word: str) -> torch.Tensor:
     return sentence2emb.encode(word, device="cuda", show_progress_bar=False, convert_to_tensor=True).cpu()
 
 
-def create_word_dict(word_list: List[str] = None, path: str = None) -> Dict[str, torch.Tensor]:
-    if path != None:
-        with open(path,'r') as f:
-            trees = json.load(f)
+def create_word_dict(word_list: List[str] = None, trees: Dict[str, Tuple[List[str], Tuple[List[int], List[int]]]] = None) -> Dict[str, torch.Tensor]:
+    if trees != None:
         word_list = []
         for number, tree in trees.items():
             word_list.extend(tree[0])

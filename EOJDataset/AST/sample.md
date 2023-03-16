@@ -80,3 +80,7 @@ compound_statement
 function_definition
 translation_unit
 ```
+
+word2vec:
+    total word: 18821872
+    unique word: 9637

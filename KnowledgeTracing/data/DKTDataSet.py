@@ -1,10 +1,10 @@
 import numpy as np
 import torch
 from torch.utils.data.dataset import Dataset
-from Constant import Constants as C
-from data.readdata import DataReader
-# from ...EOJDataset.AST.tree_tools import tree_VE_to_tensor
-# from ...EOJDataset.AST.word2vec import create_word_dict
+from ..Constant import Constants as C
+from ..data.readdata import DataReader
+from EOJDataset.AST.tree_tools import tree_VE_to_tensor
+from EOJDataset.AST.word2vec import create_word_dict
 
 import itertools
 import pandas as pd

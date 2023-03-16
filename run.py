@@ -1,17 +1,18 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from model.RNNModel import DKT
-from model.NeuralCDModel import NeuralCDM
-from model.SAINTModel import saint
-from Constant import Constants as C
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
 import torch.optim as optim
-from evaluation import eval
-from evaluation.test import knowledge_proficiency
-from data.DKTDataSet import DKTDataSet
+from KnowledgeTracing.model.RNNModel import DKT
+from KnowledgeTracing.model.NeuralCDModel import NeuralCDM
+from KnowledgeTracing.model.SAINTModel import saint
+from KnowledgeTracing.Constant import Constants as C
+from KnowledgeTracing.evaluation import eval
+from KnowledgeTracing.evaluation.test import knowledge_proficiency
+from KnowledgeTracing.data.DKTDataSet import DKTDataSet
 
 print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 

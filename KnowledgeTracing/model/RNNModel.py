@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 from sklearn.model_selection import train_test_split
-from Constant import Constants as C
+from ..Constant import Constants as C
 
 class DKT(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):

@@ -10,8 +10,8 @@ from sklearn import metrics
 from torch.autograd import Variable
 from torch.utils.tensorboard import SummaryWriter
 
-from Constant import Constants as C
-from utils import save_config_file, save_checkpoint
+from ..Constant import Constants as C
+from .utils import save_config_file, save_checkpoint
 
 tt = 0
 ep = 0

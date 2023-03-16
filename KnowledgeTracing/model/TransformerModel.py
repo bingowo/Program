@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import copy
-from Constant import Constants as C
+from ..Constant import Constants as C
 
 class AttentionLayer(torch.nn.Module):
 

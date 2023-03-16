@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F 
 import numpy as np
 import copy
-from Constant import Constants as C
+from ..Constant import Constants as C
 
 
 class Feed_Forward_block(nn.Module):

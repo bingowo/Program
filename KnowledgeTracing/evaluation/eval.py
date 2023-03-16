@@ -56,6 +56,8 @@ def performance(ground_truth, prediction, epoch):
 
 
 def train_epoch(model, trainLoader, optimizer, loss_func):
+    model.train()
+
     loss_sum = 0
     temp_pred = torch.Tensor([]).to(C.device)
     temp_gold = torch.Tensor([]).to(C.device)
@@ -138,21 +140,9 @@ def test_epoch(model, testLoader):
 
     return pred_epoch, gold_epoch
 
-
-def train(trainLoaders, model, optimizer, lossFunc):
-    model.train()
-    for i in range(len(trainLoaders)):
-        model, optimizer = train_epoch(model, trainLoaders[i], optimizer, lossFunc)
-    return model, optimizer
-
-def test(testLoaders, model, epoch):
+def test(testLoader, model, epoch):
     model.eval()
-    ground_truth = torch.Tensor([])
-    prediction = torch.Tensor([])
-    for i in range(len(testLoaders)):
-        pred_epoch, gold_epoch = test_epoch(model, testLoaders[i])
-        prediction = torch.cat([prediction, pred_epoch])
-        ground_truth = torch.cat([ground_truth, gold_epoch])
+    prediction, ground_truth = test_epoch(model, testLoader)
     performance(ground_truth, prediction, epoch)
     print("================================================")
 

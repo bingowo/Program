@@ -4,13 +4,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from model.RNNModel import DKT
 from model.NeuralCDModel import NeuralCDM
 from model.SAINTModel import saint
-from data.dataloader import getLoaderSet, getLoader
 from Constant import Constants as C
 import torch
 import torch.nn as nn
+import torch.utils.data as Data
 import torch.optim as optim
 from evaluation import eval
 from evaluation.test import knowledge_proficiency
+from data.DKTDataSet import DKTDataSet
 
 print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 
@@ -57,7 +58,10 @@ optimizer = optim.AdamW(model.parameters(), lr=a, weight_decay=c)#, weight_decay
 total = sum(p.numel() for p in model.parameters())
 print("Total params: %.2fM" % (total/1e6))
 
-trainLoaders, testLoaders = getLoader(C.DATASET)
+train_ddata = DKTDataSet(C.Dpath + '/contest513/contest513_train.csv', use_data_augmentation=False)
+test_ddata = DKTDataSet(C.Dpath + '/contest513/contest513_test.csv')
+trainLoader = Data.DataLoader(train_ddata, batch_size=C.BATCH_SIZE, shuffle=True, num_workers=C.WORKERS)
+testLoader = Data.DataLoader(test_ddata, batch_size=C.BATCH_SIZE, num_workers=C.WORKERS)
 
 
 # self.writer = SummaryWriter()
@@ -65,9 +69,9 @@ trainLoaders, testLoaders = getLoader(C.DATASET)
 
 for epoch in range(C.EPOCH):
     print('epoch: ' + str(epoch))
-    model, optimizer = eval.train(trainLoaders, model, optimizer, loss_func)
+    model, optimizer = eval.train_epoch(model, trainLoader, optimizer, loss_func)
     # eval.validate_for_NeuralCDM(trainLoaders, model, epoch, net)
-    eval.test(testLoaders, model, epoch)
+    eval.test(testLoader, model, epoch)
 
 # torch.save(model.state_dict(),'net_params.pth')
 

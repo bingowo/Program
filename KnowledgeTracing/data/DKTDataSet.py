@@ -1,17 +1,22 @@
 import numpy as np
+import torch
 from torch.utils.data.dataset import Dataset
 from Constant import Constants as C
-import torch
+from data.readdata import DataReader
+# from ...EOJDataset.AST.tree_tools import tree_VE_to_tensor
+# from ...EOJDataset.AST.word2vec import create_word_dict
 
 import itertools
 import pandas as pd
 
 class DKTDataSet(Dataset):
-    def __init__(self, ques, ans, code_ids):
+    def __init__(self, data_path, use_data_augmentation=False):
+        handle = DataReader(data_path ,C.MAX_STEP, C.NUM_OF_QUESTIONS)
+        ques, ans, code_ids = handle.getData(use_data_augmentation)
+
         self.ques = ques
         self.ans = ans
         self.code_ids = code_ids
-
 
         self.Q = np.zeros((C.exer_n + 1, 4))
         prob2concept = pd.read_csv(C.Dpath + '/contest513/problem_label.csv')

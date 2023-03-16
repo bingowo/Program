@@ -1,5 +1,4 @@
 import numpy as np
-from data.DKTDataSet import DKTDataSet
 import itertools
 import tqdm
 import random
@@ -10,11 +9,11 @@ class DataReader():
         self.maxstep = maxstep
         self.numofques = numofques
 
-    def getData(self, resi):
+    def getData(self, use_data_augmentation):
         trainqus = np.array([])
         trainans = np.array([])
         traincode_id = np.array([])
-        end = 50 if resi else 1
+        end = 50 if use_data_augmentation else 1
         with open(self.path, 'r') as train:
             for len, ques, ans, code_id in tqdm.tqdm(itertools.zip_longest(*[train] * 4), desc='loading data:    ', mininterval=2):
                 _len = int(len.strip().strip(','))
@@ -36,7 +35,7 @@ class DataReader():
                         trainqus = np.append(trainqus, ques).astype(np.int)
                         trainans = np.append(trainans, ans).astype(np.int)
                         traincode_id = np.append(traincode_id, code_id).astype(np.int)
-                if resi:
+                if use_data_augmentation:
                     for _ in range((_len-80)//5):
                         x = random.sample(range(_len), 50)
                         x.sort()

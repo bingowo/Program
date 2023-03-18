@@ -35,7 +35,8 @@ class DKTDataSet(Dataset):
         # print(self.Q,self.stu)
         # print(len(self.ques),len(self.ans),len(self.stu))
 
-        codes = torch.load('EOJDataset/CodeBERT/code_embeddings_codebert.t7')
+        # codes = torch.load('EOJDataset/CodeBERT/code_embeddings_codebert.t7')
+        codes = None
 
         self.in_ques        = torch.zeros([len(self.ques), C.MAX_STEP])
         self.in_concepts    = torch.zeros([len(self.ques), C.MAX_STEP, 4])
@@ -66,7 +67,7 @@ class DKTDataSet(Dataset):
         return len(self.ques)
 
     def __getitem__(self, index):
-        return self.in_ques[index], self.in_concepts[index], torch.zeros_like(self.out_ans[index]), self.out_codes[index], self.in_score[index]
+        return self.in_ques[index], self.in_concepts[index], self.out_ans[index], self.out_codes[index], self.in_score[index]
         #return questions, self.Q[questions] * 1.0, answers
 
     def preload(self, index, code2):
@@ -77,8 +78,8 @@ class DKTDataSet(Dataset):
         for i in range(C.MAX_STEP):
             # print(self.nums[index,i],self.vecs.get(self.nums[index,i],torch.zeros((1,768))).size())
             concept[i,:] = self.Q[self.ques[index][i],:]
-            codes[i,:] = code2.get(str(self.code_ids[index, i]), torch.zeros((1, C.code_length)))
-            codes[i,:] = torch.nn.functional.normalize(codes[i,:], p=2, dim=0)
+            # codes[i,:] = code2.get(str(self.code_ids[index, i]), torch.zeros((1, C.code_length)))
+            # codes[i,:] = torch.nn.functional.normalize(codes[i,:], p=2, dim=0)
             # codes[i,:] = torch.zeros((1, C.code_length))
             # if codes[i,:].sum() == 0 and self.code_ids[index, i] != 0:  print(codes[i,:].sum())
         

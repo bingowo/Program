@@ -15,7 +15,7 @@ from .utils import save_config_file, save_checkpoint
 tt = 0
 ep = 0
 
-def performance(ground_truth, prediction, epoch):
+def performance(ground_truth, prediction, epoch, model=None):
     print(len(prediction))
     print(ground_truth)
     print(prediction)
@@ -44,14 +44,15 @@ def performance(ground_truth, prediction, epoch):
     if cnt/len(ground_truth) > tt and epoch != 0:
         ep = epoch
         tt = cnt/len(ground_truth)
+        # torch.save(model.state_dict(),'net_params.pth')
     if epoch != 0: print('acc:' + str(tt) + ' epoch in:' + str(ep)  + '\n')
 
-    # if epoch == C.EPOCH-1:#or (epoch > 20 and (cnt/len(ground_truth) > 0.85 or cnt/len(ground_truth) < 0.70)):
-    #     with open('is_finish.txt', 'w') as x:
-    #         x.write('1')
-    #     with open('result.txt', 'a') as x:
-    #         x.write('acc:' + str(tt) + ' epoch in:' + str(ep)  + ' cc:' + str(cnt/len(ground_truth))  + '\n')
-    #     exit(0)
+    if epoch == C.EPOCH-1 or (epoch > 30 and (cnt/len(ground_truth) > 0.85 or cnt/len(ground_truth) < 0.70 or auc < 0.6)):
+        with open('is_finish.txt', 'w') as x:
+            x.write('1')
+        with open('result.txt', 'a') as x:
+            x.write('acc:' + str(tt) + ' epoch in:' + str(ep)  + ' cc:' + str(cnt/len(ground_truth))  + ' auc:' + str(auc)  + '\n')
+        exit(0)
 
 
 def train_epoch(model, trainLoader, optimizer, loss_func):
@@ -82,8 +83,8 @@ def train_epoch(model, trainLoader, optimizer, loss_func):
         for student in range(pred.shape[0]):
             a = torch.cat([a,pred[student,1:int(t[student])]])
             b = torch.cat([b,score[student,1:int(t[student])]])
-            temp_pred = torch.cat([temp_pred, pred[student,1:int(t[student])]])
-            temp_gold = torch.cat([temp_gold, score[student,1:int(t[student])]])
+            # temp_pred = torch.cat([temp_pred, pred[student,1:int(t[student])]])
+            # temp_gold = torch.cat([temp_gold, score[student,1:int(t[student])]])
         loss = loss_func(a.view(-1), b.view(-1))
         # loss = loss_func(pred.view(-1), score.view(-1))
 
@@ -100,13 +101,8 @@ def train_epoch(model, trainLoader, optimizer, loss_func):
         # print(loss)
         optimizer.step()
     print('loss:',loss_sum)
-    performance(temp_gold.cpu(), temp_pred.cpu(), 0)
+    # performance(temp_gold.cpu(), temp_pred.cpu(), 0)
     return model, optimizer
-
-def save_snapshot(model, filename):
-    f = open(filename, 'wb')
-    torch.save(model.state_dict(), f)
-    f.close()
 
 @torch.no_grad()
 def test_epoch(model, testLoader): 
@@ -125,14 +121,10 @@ def test_epoch(model, testLoader):
 
         temp_pred = torch.Tensor([])
         temp_gold = torch.Tensor([])
+        t = torch.count_nonzero(ques, dim=1).cpu()
         for student in range(pred.shape[0]):
-            # x = int(ind[student])
-            # temp_pred = torch.cat([temp_pred, pred[student,x:x+1,0]])
-            # temp_gold = torch.cat([temp_gold, score[student,x:x+1]])
-            for x in range(pred.shape[1]):
-                if ques[student,x] != 0 and x != 0:#and (x == 49 or ques[student,x+1] == 0):
-                    temp_pred = torch.cat([temp_pred, pred[student,x:x+1]])
-                    temp_gold = torch.cat([temp_gold, score[student,x:x+1]])
+            temp_pred = torch.cat([temp_pred, pred[student,1:int(t[student])]])
+            temp_gold = torch.cat([temp_gold, score[student,1:int(t[student])]])
 
         pred_epoch = torch.cat([pred_epoch, temp_pred])
         gold_epoch = torch.cat([gold_epoch, temp_gold])
@@ -142,7 +134,7 @@ def test_epoch(model, testLoader):
 def test(testLoader, model, epoch):
     model.eval()
     prediction, ground_truth = test_epoch(model, testLoader)
-    performance(ground_truth, prediction, epoch)
+    performance(ground_truth, prediction, epoch, model)
     print("================================================")
 
     

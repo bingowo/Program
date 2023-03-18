@@ -11,16 +11,16 @@ bool is_finish(){
 	fclose(fp);
 	return (x==0);
 }
-double _lr[1] = {0.01};
-double _dropout[3] = {0,0.1,0.2};
-double _weight_decay[5] = {0.0001,0.0002,0.0003,0.0005,0.001};
+double _lr[5] = {0.01,0.005,0.001,0.0005,0.0001};
+double _dropout[3] = {0.1,0.3,0.5};
+double _weight_decay[4] = {0,0.0003,0.0002,0.0001};
 int use[100]={};
 
 int main(){
 	
-	for(int i=0;i<1;i++)
+	for(int i=0;i<5;i++)
 	for(int j=0;j<3;j++)
-	for(int k=0;k<5;k++){
+	for(int k=0;k<4;k++){
 		double lr = _lr[i];
 		double dropout = _dropout[j];
 		double weight_decay = _weight_decay[k];
@@ -38,7 +38,7 @@ int main(){
 		rewind(fp);
 		fprintf(fp,"%lf %lf %lf",lr,dropout,weight_decay);
 		fclose(fp);
-		system("C:/Users/maobochao/AppData/Local/Programs/Python/Python38/python.exe c:/Users/maobochao/Desktop/EOJ推荐系统/Program/KnowledgeTracing/evaluation/run.py");
+		system("C:/Users/maobochao/AppData/Local/Programs/Python/Python38/python.exe c:/Users/maobochao/Desktop/EOJ推荐系统/Program/run.py");
 //		sleep(10);
 		while(is_finish()) sleep(5),cerr<<"runing!!!!!!!!!!!!!!!!!!!!!!"<<endl;
 	}

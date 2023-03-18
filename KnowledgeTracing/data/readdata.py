@@ -35,7 +35,7 @@ class DataReader():
                         trainans = np.append(trainans, ans).astype(np.int)
                         traincode_id = np.append(traincode_id, code_id).astype(np.int)
                 if use_data_augmentation:
-                    for _ in range((_len-80)//5):
+                    for _ in range((_len-80)//6):
                         x = random.sample(range(_len), 50)
                         x.sort()
                         len = 50

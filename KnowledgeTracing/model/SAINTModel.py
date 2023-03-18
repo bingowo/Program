@@ -45,11 +45,10 @@ class Encoder_block(nn.Module):
         ## todo create a positional encoding ( two options numeric, sine)
         if first_block:
             in_ex = self.embd_ex( in_ex )
-            # in_cat = self.embd_cat( in_cat )
-            # in_cat = torch.mean(in_cat,2)
-            #in_pos = self.embd_pos( in_pos )
+            in_cat = self.embd_cat( in_cat )
+            in_cat = torch.mean(in_cat,2)
             #combining the embedings
-            out = in_ex #+ in_cat #+ in_pos                      # (b,n,d)
+            out = in_ex + in_cat                      # (b,n,d)
 
             in_pos = get_pos(self.seq_len)
             in_pos = self.embd_pos( in_pos )
@@ -104,20 +103,20 @@ class Decoder_block(nn.Module):
 
         self.dropout = nn.Dropout(p=dropout)
 
-        self.ff_codes    = nn.Linear(768, 768)
-        self.ff_code    = nn.Linear(768, dim_model)
-        self.ff_tmp    = nn.Linear(dim_model*2, dim_model)
+        # self.ff_codes    = nn.Linear(768, 768)
+        # self.ff_code    = nn.Linear(768, dim_model)
+        # self.ff_tmp    = nn.Linear(dim_model*2, dim_model)
 
     def forward(self, in_in, in_code,en_out,first_block=True):
 
          ## todo create a positional encoding ( two options numeric, sine)
         if first_block:
-            in_in = self.embd_in(in_in)
+            out = self.embd_in(in_in)
             #combining the embedings
-            in_code = self.ff_codes(F.relu(in_code))
-            tmp = self.ff_code(in_code)                 #if using code
-            in_in = torch.cat((tmp,in_in),2)
-            out = self.ff_tmp(in_in)
+            # in_code = self.ff_codes(F.relu(in_code))
+            # tmp = self.ff_code(in_code)                 #if using code
+            # out = torch.cat((tmp,out),2)
+            # out = self.ff_tmp(out)
 
             in_pos = get_pos(self.seq_len)
             in_pos = self.embd_pos( in_pos )

@@ -26,10 +26,10 @@ DATASET = datasets['contest513']
 NUM_OF_QUESTIONS = numbers['contest513']
 # the max step of RNN model
 MAX_STEP = 50
-BATCH_SIZE = 50
+BATCH_SIZE = 8
 WORKERS = 0
 LR = 0.00005
-EPOCH = 10000
+EPOCH = 100
 #input dimension
 INPUT = NUM_OF_QUESTIONS * 2 + (knowledge_n if use_knowledge else 0)
 # embedding dimension

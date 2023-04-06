@@ -13,7 +13,7 @@ int main(){
 
 
 ```
-ranslation_unit
+translation_unit
 preproc_include
 #include
 #include
@@ -83,4 +83,4 @@ translation_unit
 
 word2vec:
     total word: 18821872
-    unique word: 9637
+    unique word: 9617

@@ -6,3 +6,4 @@
 *.tsv
 *.t7
 *.json
+/DrawPic

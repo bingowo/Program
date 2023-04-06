@@ -28,7 +28,7 @@ print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 # with open('result.txt', 'a') as x:
 #     x.write('lr:' + str(a) + ' dropout:' + str(b)  + ' weight_decay:' + str(c)  +  '    ')
 
-a = 0.005
+a = 0.0002
 b = 0.3
 c = 0.0002
 
@@ -43,7 +43,7 @@ model = saint(dim_model=128,
             seq_len=C.MAX_STEP,
             dropout=b
             ).to(C.device)
-# model = AstAttention(384, 768, num_layers=6, num_heads=8).to(C.device)
+ast_model = AstAttention(384, C.code_length, num_layers=2, num_heads=8).to(C.device)
 # from KnowledgeTracing.model.classifier import Classifier
 # classifier = Classifier(768, C.exer_n).to(C.device)
 # model = DKT(C.INPUT, C.HIDDEN, C.LAYERS, C.OUTPUT).to(C.device)
@@ -60,13 +60,23 @@ loss_func = nn.BCELoss().to(C.device)
 # 	{"params": classifier.parameters(), "lr": 3e-4}
 # ])
 optimizer = optim.Adam(model.parameters(), lr=a, weight_decay=c)#, weight_decay=1e-4)
+ast_optimizer = optim.Adam(ast_model.parameters(), lr=a, weight_decay=c)
+optimizer = (optimizer, ast_optimizer)
 # optimizer = optim.Adagrad(model.parameters(),lr=0.001)
 # optimizer = optim.SGD(model.parameters(), lr=C.LR, weight_decay=1e-4, momentum=0.98)
 
 total = sum(p.numel() for p in model.parameters())
-print("Total params: %.2fM" % (total/1e6))
+print("Model params: %.2fM" % (total/1e6))
+total = sum(p.numel() for p in ast_model.parameters())
+print("AST_model params: %.2fM" % (total/1e6))
 
-# model = (model,classifier)
+import json
+from EOJDataset.AST.word2vec import create_word_dict
+with open("EOJDataset/AST/ast_trees_pruned.json",'r') as f:
+    _trees = json.load(f)
+_cache_word2vec = create_word_dict(trees=_trees)
+print("Loaded trees and word_cache.")
+model = (model,ast_model,_trees,_cache_word2vec)
 
 train_ddata = DKTDataSet(C.Dpath + '/contest513/contest513_train.csv', use_data_augmentation=False)
 test_ddata = DKTDataSet(C.Dpath + '/contest513/contest513_test.csv')
@@ -74,15 +84,25 @@ test_ddata = DKTDataSet(C.Dpath + '/contest513/contest513_test.csv')
 # train_ddata = ASTDataSet(C.Dpath + '/contest513/contest513_train.csv')
 # test_ddata = ASTDataSet(C.Dpath + '/contest513/contest513_test.csv')
 trainLoader = Data.DataLoader(train_ddata, batch_size=C.BATCH_SIZE, shuffle=True, num_workers=C.WORKERS)
-testLoader = Data.DataLoader(test_ddata, batch_size=32, num_workers=C.WORKERS)
+testLoader = Data.DataLoader(test_ddata, batch_size=C.BATCH_SIZE, num_workers=C.WORKERS)
 
 
 # self.writer = SummaryWriter()
 # logging.basicConfig(filename=os.path.join(self.writer.log_dir, 'training.log'), level=logging.DEBUG)
 
-for epoch in range(C.EPOCH):
+epoch_begin = 0
+
+# tmp = torch.load('tmp.pth')
+# epoch_begin = tmp['epoch'] + 1
+# model[0].load_state_dict(tmp['model'])
+# model[1].load_state_dict(tmp['ast_model'])
+# optimizer[0].load_state_dict(tmp['opt'])
+# optimizer[1].load_state_dict(tmp['ast_opt'])
+
+for epoch in range(epoch_begin, C.EPOCH):
     print('epoch: ' + str(epoch))
     model, optimizer = eval.train_epoch(model, trainLoader, optimizer, loss_func)
+    torch.save({'epoch':epoch,'model':model[0].state_dict(),'ast_model':model[1].state_dict(),'opt':optimizer[0].state_dict(),'ast_opt':optimizer[1].state_dict()},'tmp.pth')
     # eval.validate_for_NeuralCDM(trainLoaders, model, epoch, net)
     eval.test(testLoader, model, epoch)
 

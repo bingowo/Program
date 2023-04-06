@@ -87,15 +87,10 @@ def merge_tree_VE(tree_VE1: TreeVE, tree_VE2: TreeVE, merge_node: str) -> TreeVE
     return V, E
 
 
-def collate_tree_tensor(batch: List[Tuple[int, int, torch.Tensor, torch.Tensor]]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-    ques_list = [ques for ques, ans, nodes, mask in batch]
-    ans_list = [ans for ques, ans, nodes, mask in batch]
-    nodes_list = [nodes for ques, ans, nodes, mask in batch]
-    mask_list = [mask for ques, ans, nodes, mask in batch]
+def collate_tree_tensor(batch: List[Tuple[torch.Tensor, torch.Tensor]]) -> Tuple[torch.Tensor, torch.Tensor]:
+    nodes_list = [nodes for nodes, mask in batch]
+    mask_list = [mask for nodes, mask in batch]
     node_batch = torch.nn.utils.rnn.pad_sequence(nodes_list)
-
-    ques_list = torch.tensor(ques_list, dtype=torch.long)
-    ans_list = torch.tensor(ans_list, dtype=torch.long)
 
     n = node_batch.shape[0]
 
@@ -106,4 +101,4 @@ def collate_tree_tensor(batch: List[Tuple[int, int, torch.Tensor, torch.Tensor]]
         n, m = mask.shape
         mask_batch[idx, :n, :m] = mask
 
-    return ques_list, ans_list, node_batch, mask_batch
+    return node_batch, mask_batch

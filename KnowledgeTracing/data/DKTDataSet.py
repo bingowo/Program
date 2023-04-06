@@ -8,6 +8,7 @@ from EOJDataset.AST.word2vec import create_word_dict
 
 import itertools
 import pandas as pd
+import json
 
 class DKTDataSet(Dataset):
     def __init__(self, data_path, use_data_augmentation=False):
@@ -36,24 +37,19 @@ class DKTDataSet(Dataset):
         # print(len(self.ques),len(self.ans),len(self.stu))
 
         # codes = torch.load('EOJDataset/CodeBERT/code_embeddings_codebert.t7')
-        codes = None
 
         self.in_ques        = torch.zeros([len(self.ques), C.MAX_STEP])
         self.in_concepts    = torch.zeros([len(self.ques), C.MAX_STEP, 4])
-        self.in_score         = torch.zeros([len(self.ques), C.MAX_STEP])
-        self.in_codes       = torch.zeros([len(self.ques), C.MAX_STEP, C.code_length])
+        self.in_score       = torch.zeros([len(self.ques), C.MAX_STEP])
         for index in range(len(self.ques)):
-            self.in_ques[index,:], self.in_concepts[index,:], self.in_score[index,:], self.in_codes[index,:] = self.preload(index, codes)
+            self.in_ques[index,:], self.in_concepts[index,:], self.in_score[index,:] = self.preload(index)
 
         # self.result = np.zeros(shape=[len(self.ques), C.MAX_STEP, 2 * C.NUM_OF_QUESTIONS + (C.knowledge_n if C.use_knowledge else 0)])
         # for index in range(len(self.ques)):
         #     self.result[index] = self.onehot(self.ques[index], self.ans[index])
 
         self.out_ans        = torch.zeros([len(self.ques), C.MAX_STEP])
-        self.out_codes      = torch.zeros([len(self.ques), C.MAX_STEP, C.code_length])
-
         self.out_ans[:,1:]     = self.in_score[:,:-1]
-        self.out_codes[:,1:]   = self.in_codes[:,:-1]
         
         self.in_ques = self.in_ques.long()
         self.in_concepts = self.in_concepts.long()
@@ -67,14 +63,14 @@ class DKTDataSet(Dataset):
         return len(self.ques)
 
     def __getitem__(self, index):
-        return self.in_ques[index], self.in_concepts[index], self.out_ans[index], self.out_codes[index], self.in_score[index]
+        return self.in_ques[index], self.in_concepts[index], self.out_ans[index], self.code_ids[index], self.in_score[index]
         #return questions, self.Q[questions] * 1.0, answers
 
-    def preload(self, index, code2):
+    def preload(self, index):
         ques    = torch.from_numpy(self.ques[index])
         concept = torch.zeros([C.MAX_STEP, 4])
         ans     = torch.tensor([1 if self.ans[index][i] == 100 else 0 for i in range(C.MAX_STEP)],dtype=torch.long)
-        codes   = torch.zeros([C.MAX_STEP, C.code_length])
+
         for i in range(C.MAX_STEP):
             # print(self.nums[index,i],self.vecs.get(self.nums[index,i],torch.zeros((1,768))).size())
             concept[i,:] = self.Q[self.ques[index][i],:]
@@ -84,7 +80,7 @@ class DKTDataSet(Dataset):
             # if codes[i,:].sum() == 0 and self.code_ids[index, i] != 0:  print(codes[i,:].sum())
         
         # c = torch.FloatTensor([self.vecs.get(self.nums[index,i],torch.zeros((1,768))) for i in range(C.MAX_STEP)])
-        return ques.long(), concept, ans, codes
+        return ques.long(), concept, ans
     
     def onehot(self, questions, answers):
         result = np.zeros(shape=[C.MAX_STEP, 2 * C.NUM_OF_QUESTIONS + (C.knowledge_n if C.use_knowledge else 0)])

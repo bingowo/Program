@@ -104,7 +104,7 @@ class Decoder_block(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
 
         # self.ff_codes    = nn.Linear(768, 768)
-        # self.ff_code    = nn.Linear(768, dim_model)
+        self.ff_code    = nn.Linear(C.code_length, dim_model)
         # self.ff_tmp    = nn.Linear(dim_model*2, dim_model)
 
     def forward(self, in_in, in_code,en_out,first_block=True):
@@ -114,13 +114,13 @@ class Decoder_block(nn.Module):
             out = self.embd_in(in_in)
             #combining the embedings
             # in_code = self.ff_codes(F.relu(in_code))
-            # tmp = self.ff_code(in_code)                 #if using code
+            tmp = self.ff_code(in_code)                 #if using code
             # out = torch.cat((tmp,out),2)
             # out = self.ff_tmp(out)
 
             in_pos = get_pos(self.seq_len)
             in_pos = self.embd_pos( in_pos )
-            out = out + in_pos                                          # Applying positional embedding
+            out = out + in_pos# + tmp                                         # Applying positional embedding
             out = self.dropout(out)
         else:
             out = in_in

@@ -19,7 +19,7 @@ class DataReader():
                 _ques = np.array(ques.strip().strip(',').split(',')).astype(np.int)
                 _ans = np.array(ans.strip().strip(',').split(',')).astype(np.int)
                 _code_id = np.array(code_id.strip().strip(',').split(',')).astype(np.int)
-                for i in range(0,end,10):
+                for i in range(0,end,17):
                     if _len > i:
                         len = _len - i
                         ques = _ques[i:]
@@ -35,7 +35,7 @@ class DataReader():
                         trainans = np.append(trainans, ans).astype(np.int)
                         traincode_id = np.append(traincode_id, code_id).astype(np.int)
                 if use_data_augmentation:
-                    for _ in range((_len-80)//6):
+                    for _ in range(int((_len-80)/10)):
                         x = random.sample(range(_len), 50)
                         x.sort()
                         len = 50

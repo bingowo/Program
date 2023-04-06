@@ -44,15 +44,15 @@ def performance(ground_truth, prediction, epoch, model=None):
     if cnt/len(ground_truth) > tt and epoch != 0:
         ep = epoch
         tt = cnt/len(ground_truth)
-        # torch.save(model.state_dict(),'net_params.pth')
+        torch.save(model.state_dict(),'net_params.pth')
     if epoch != 0: print('acc:' + str(tt) + ' epoch in:' + str(ep)  + '\n')
 
-    if epoch == C.EPOCH-1 or (epoch > 30 and (cnt/len(ground_truth) > 0.85 or cnt/len(ground_truth) < 0.70 or auc < 0.6)):
-        with open('is_finish.txt', 'w') as x:
-            x.write('1')
-        with open('result.txt', 'a') as x:
-            x.write('acc:' + str(tt) + ' epoch in:' + str(ep)  + ' cc:' + str(cnt/len(ground_truth))  + ' auc:' + str(auc)  + '\n')
-        exit(0)
+    # if epoch == C.EPOCH-1 or (epoch > 30 and (cnt/len(ground_truth) > 0.85 or cnt/len(ground_truth) < 0.70 or auc < 0.6)):
+    #     with open('is_finish.txt', 'w') as x:
+    #         x.write('1')
+    #     with open('result.txt', 'a') as x:
+    #         x.write('acc:' + str(tt) + ' epoch in:' + str(ep)  + ' cc:' + str(cnt/len(ground_truth))  + ' auc:' + str(auc)  + '\n')
+    #     exit(0)
 
 
 def train_epoch(model, trainLoader, optimizer, loss_func):

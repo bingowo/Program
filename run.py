@@ -18,19 +18,19 @@ from KnowledgeTracing.data.ASTDataSet import ASTDataSet
 print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 
 
-with open('is_finish.txt', 'w') as x:
-    x.write('0')
-with open('parameter.txt', 'r') as x:
-    a,b,c = x.readline().split()
-    a = float(a)
-    b = float(b)
-    c = float(c)
-with open('result.txt', 'a') as x:
-    x.write('lr:' + str(a) + ' dropout:' + str(b)  + ' weight_decay:' + str(c)  +  '    ')
+# with open('is_finish.txt', 'w') as x:
+#     x.write('0')
+# with open('parameter.txt', 'r') as x:
+#     a,b,c = x.readline().split()
+#     a = float(a)
+#     b = float(b)
+#     c = float(c)
+# with open('result.txt', 'a') as x:
+#     x.write('lr:' + str(a) + ' dropout:' + str(b)  + ' weight_decay:' + str(c)  +  '    ')
 
-# a = 0.005
-# b = 0.5
-# c = 0.01
+a = 0.005
+b = 0.3
+c = 0.0002
 
 model = saint(dim_model=128,
             num_en=2,

@@ -28,7 +28,7 @@ print('Dataset: ' + C.DATASET + ', Learning Rate: ' + str(C.LR) + '\n')
 # with open('result.txt', 'a') as x:
 #     x.write('lr:' + str(a) + ' dropout:' + str(b)  + ' weight_decay:' + str(c)  +  '    ')
 
-a = 0.0002
+a = 0.0001
 b = 0.3
 c = 0.0002
 
@@ -60,7 +60,7 @@ loss_func = nn.BCELoss().to(C.device)
 # 	{"params": classifier.parameters(), "lr": 3e-4}
 # ])
 optimizer = optim.Adam(model.parameters(), lr=a, weight_decay=c)#, weight_decay=1e-4)
-ast_optimizer = optim.Adam(ast_model.parameters(), lr=a, weight_decay=c)
+ast_optimizer = optim.Adam(ast_model.parameters(), lr=1e-5, weight_decay=c)
 optimizer = (optimizer, ast_optimizer)
 # optimizer = optim.Adagrad(model.parameters(),lr=0.001)
 # optimizer = optim.SGD(model.parameters(), lr=C.LR, weight_decay=1e-4, momentum=0.98)
@@ -92,12 +92,15 @@ testLoader = Data.DataLoader(test_ddata, batch_size=C.BATCH_SIZE, num_workers=C.
 
 epoch_begin = 0
 
-# tmp = torch.load('tmp.pth')
-# epoch_begin = tmp['epoch'] + 1
-# model[0].load_state_dict(tmp['model'])
-# model[1].load_state_dict(tmp['ast_model'])
-# optimizer[0].load_state_dict(tmp['opt'])
-# optimizer[1].load_state_dict(tmp['ast_opt'])
+tmp = torch.load('tmp.pth')
+epoch_begin = tmp['epoch'] + 1
+model[0].load_state_dict(tmp['model'])
+model[1].load_state_dict(tmp['ast_model'])
+optimizer[0].load_state_dict(tmp['opt'])
+optimizer[1].load_state_dict(tmp['ast_opt'])
+
+optimizer[0].param_groups[0]['lr'] = 0.0001
+optimizer[1].param_groups[0]['lr'] = 3e-5
 
 for epoch in range(epoch_begin, C.EPOCH):
     print('epoch: ' + str(epoch))

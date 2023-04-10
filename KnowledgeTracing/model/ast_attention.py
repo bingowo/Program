@@ -15,11 +15,11 @@ class AttentionLayer(torch.nn.Module):
         self.drop = torch.nn.Dropout(p=dropout)
 
     def forward(self, input: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        B, L, _ = mask.shape
-        assert mask.shape == (B, L, L)
-        assert input.shape == (L, B, self.hidden_size)
+        # B, L, _ = mask.shape
+        # assert mask.shape == (B, L, L)
+        # assert input.shape == (L, B, self.hidden_size)
 
-        output, _ = self.attn(input, input, input, attn_mask=mask.repeat_interleave(self.num_heads, dim=0))
+        output, _ = self.attn(input, input, input, attn_mask=mask)#.repeat_interleave(self.num_heads, dim=0))
         output = self.norm(output)
         return input + self.drop(output)
 
@@ -64,6 +64,7 @@ class AstAttention(torch.nn.Module):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
+        self.num_heads = num_heads
 
         self.dense = torch.nn.Linear(input_size, hidden_size)
         self.pos_embedding = PositionalEmbedding(hidden_size, dropout)
@@ -81,6 +82,8 @@ class AstAttention(torch.nn.Module):
         N, B, F = input.shape
         assert F == self.input_size
         assert mask.shape == (B, N, N)
+
+        mask = mask.repeat_interleave(self.num_heads, dim=0)
 
         hidden = self.dense(input)
         hidden = self.pos_embedding(hidden)
